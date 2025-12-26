@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+pydantic-settings
+chromadb
+ultralytics
+sentence-transformers
+Pillow
+numpy
+google-generativeai
