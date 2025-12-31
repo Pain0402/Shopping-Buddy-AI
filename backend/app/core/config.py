@@ -1,23 +1,24 @@
-import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "AI Shopping Buddy"
+    PROJECT_NAME: str = "Shopping Buddy AI"
     API_V1_STR: str = "/api/v1"
     
-    # AI Configuration
-    CLIP_MODEL_NAME: str = "clip-ViT-B-32" 
-    YOLO_MODEL_PATH: str = "yolov8n.pt"
-    
-    # Vector DB
-    CHROMA_DB_PATH: str = "./chroma_db"
-    CHROMA_COLLECTION_NAME: str = "product_embeddings"
+    # Database
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+    POSTGRES_PORT: str = "5432"
+    POSTGRES_SERVER: str = "db"
 
-    # LLM Configuration (Phase 3)
-    # Tự động đọc từ file .env hoặc biến môi trường
-    GOOGLE_API_KEY: str = "" 
+    @property
+    def SQLALCHEMY_DATABASE_URI(self) -> str:
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     class Config:
-        env_file = ".env"
+        case_sensitive = True
+        env_file = ".env" # Đọc file .env ở root (khi mount volume)
+        extra = "ignore"
+
 
 settings = Settings()

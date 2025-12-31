@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        useMaterial3: true, // Giao diện hiện đại
+        useMaterial3: true, //modern design
         appBarTheme: const AppBarTheme(
           centerTitle: true,
           titleTextStyle: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
