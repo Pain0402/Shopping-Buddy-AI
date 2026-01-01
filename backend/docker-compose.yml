@@ -87,10 +87,12 @@ services:
     # Load biến môi trường
     env_file:
       - .env
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    command: sleep infinity
+    # command: sleep infinity
 
 volumes:
   postgres_data:

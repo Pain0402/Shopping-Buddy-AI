@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     POSTGRES_PORT: str = "5432"
     POSTGRES_SERVER: str = "db"
 
+    # Security
+    SECRET_KEY: str = "CHANGE_THIS_TO_A_REALLY_LONG_RANDOM_STRING_IN_ENV" 
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30 # Token sống 30 phút
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
