@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str
     S3_REGION: str = "us-east-1"
 
+    REDIS_PORT: str = "6379"
+    REDIS_PASSWORD: str
+
+    @property
+    def REDIS_URL(self) -> str:
+        return f"redis://:{self.REDIS_PASSWORD}@redis:{self.REDIS_PORT}/0"
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

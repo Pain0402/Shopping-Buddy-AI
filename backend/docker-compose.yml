@@ -58,7 +58,7 @@ services:
 
   # 4. Vector Database (Pinned Version & Explicit Volume)
   chromadb:
-    image: chromadb/chroma:0.4.22
+    image: chromadb/chroma:0.5.0
     container_name: sba_chroma
     restart: always
     ports:
@@ -70,7 +70,7 @@ services:
       - PERSIST_DIRECTORY=${CHROMA_PERSIST_DIR}
       - ANONYMIZED_TELEMETRY=FALSE
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/heartbeat')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -93,6 +93,25 @@ services:
       db:
         condition: service_healthy
     # command: sleep infinity
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: sba_worker
+    restart: always
+    volumes:
+      - .:/app
+      # Mount folder model để không phải tải lại mỗi lần restart
+      - ./ml_models:/root/.cache/huggingface 
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
 
 volumes:
   postgres_data:

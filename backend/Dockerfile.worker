@@ -1,0 +1,14 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+# Tăng timeout vì cài Torch khá lâu
+RUN pip install --no-cache-dir -r requirements.txt --timeout 1000
+
+COPY . .
+
+# Lệnh chạy Worker
+CMD ["celery", "-A", "app.core.celery_app", "worker", "--loglevel=info"]
