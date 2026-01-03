@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
+    @property
+    def SQLALCHEMY_SYNC_DATABASE_URI(self) -> str:
+        # Dành cho Celery Worker (Sync) - Dùng driver mặc định psycopg2
+        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+    
     class Config:
         case_sensitive = True
         env_file = ".env" # Đọc file .env ở root (khi mount volume)

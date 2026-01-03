@@ -1,54 +1,47 @@
-from sentence_transformers import SentenceTransformer
-from ultralytics import YOLO
 from PIL import Image
-import threading
-from app.core.config import settings
-import logging
-
-logger = logging.getLogger(__name__)
+from transformers import CLIPProcessor, CLIPModel
+import torch
+import io
 
 class AIEngine:
     _instance = None
-    _lock = threading.Lock()
 
     def __new__(cls):
-        # Implement Singleton Pattern an toàn với Thread
+        # Singleton Pattern: Chỉ tạo instance nếu chưa có
         if cls._instance is None:
-            with cls._lock:
-                if cls._instance is None:
-                    cls._instance = super(AIEngine, cls).__new__(cls)
-                    cls._instance._initialized = False
+            cls._instance = super(AIEngine, cls).__new__(cls)
+            cls._instance.initialize()
         return cls._instance
 
     def initialize(self):
-        """Load models vào bộ nhớ. Chỉ chạy 1 lần."""
-        if self._initialized:
-            return
+        print("🚀 Đang tải CLIP Model... (Việc này sẽ tốn chút thời gian lần đầu)")
+        # Sử dụng model patch32 (nhẹ hơn, nhanh hơn, độ chính xác ổn)
+        model_id = "openai/clip-vit-base-patch32"
         
-        logger.info("Loading AI Models...")
-        # Load CLIP Model (dùng cho embedding)
-        self.clip_model = SentenceTransformer(settings.CLIP_MODEL_NAME)
-        
-        # Load YOLO Model (dùng cho object detection - future proofing)
-        self.yolo_model = YOLO(settings.YOLO_MODEL_PATH)
-        
-        self._initialized = True
-        logger.info("AI Models loaded successfully.")
+        self.model = CLIPModel.from_pretrained(model_id)
+        self.processor = CLIPProcessor.from_pretrained(model_id)
+        print("✅ CLIP Model đã sẵn sàng!")
 
-    def get_embedding(self, image: Image.Image):
-        """Tạo vector embedding từ hình ảnh sử dụng CLIP."""
-        if not self._initialized:
-            raise RuntimeError("AI Engine not initialized")
+    def create_embedding(self, image_bytes: bytes):
+        """
+        Input: Ảnh dạng bytes
+        Output: Vector 512 chiều (List[float])
+        """
+        # 1. Chuyển bytes thành PIL Image
+        image = Image.open(io.BytesIO(image_bytes))
         
-        # Encode image trả về list vector (float)
-        embedding = self.clip_model.encode(image)
-        return embedding.tolist()
+        # 2. Tiền xử lý (Resize, Normalize theo chuẩn OpenAI)
+        inputs = self.processor(images=image, return_tensors="pt")
+        
+        # 3. Chạy Inference (Không tính gradient để tiết kiệm RAM)
+        with torch.no_grad():
+            image_features = self.model.get_image_features(**inputs)
+        
+        # 4. Chuẩn hóa vector (Normalization) để dùng Cosine Similarity
+        image_features /= image_features.norm(dim=-1, keepdim=True)
+        
+        # 5. Chuyển Tensor thành List Python thường
+        return image_features.squeeze().tolist()
 
-    def detect_objects(self, image: Image.Image):
-        """Phát hiện vật thể (cho các tính năng mở rộng sau này)."""
-        if not self._initialized:
-            raise RuntimeError("AI Engine not initialized")
-        return self.yolo_model(image)
-
-# Global Instance
+# Tạo biến toàn cục để các file khác import dùng luôn
 ai_engine = AIEngine()

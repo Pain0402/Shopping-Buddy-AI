@@ -1,46 +1,34 @@
 import chromadb
-from chromadb.config import Settings as ChromaSettings
 from app.core.config import settings
-import logging
-from typing import List, Dict, Any, Optional
-
-logger = logging.getLogger(__name__)
 
 class VectorStore:
     def __init__(self):
-        self.client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
+        # Kết nối tới ChromaDB container qua HTTP
+        self.client = chromadb.HttpClient(
+            host="chromadb", # Tên service trong docker-compose
+            port=8000
+        )
+        
+        # Lấy hoặc tạo Collection "products"
+        # Dùng khoảng cách cosine (cosine distance) để so sánh độ giống nhau
         self.collection = self.client.get_or_create_collection(
-            name=settings.CHROMA_COLLECTION_NAME,
+            name="products",
             metadata={"hnsw:space": "cosine"}
         )
 
-    def add_items(self, ids: List[str], embeddings: List[List[float]], metadatas: List[Dict[str, Any]]):
-        if not ids:
-            return
-        self.collection.upsert(ids=ids, embeddings=embeddings, metadatas=metadatas)
-        logger.info(f"Upserted {len(ids)} items to vector store.")
-
-    def search(self, query_embedding: List[float], n_results: int = 5):
-        results = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=n_results
+    def search(self, query_vector, k=5):
+        """Tìm kiếm top K sản phẩm giống nhất"""
+        return self.collection.query(
+            query_embeddings=[query_vector],
+            n_results=k
         )
-        return results
 
-    def get_item(self, product_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Lấy metadata của một sản phẩm theo ID.
-        Dùng cho RAG context retrieval.
-        """
-        try:
-            result = self.collection.get(ids=[product_id])
-            if result['ids']:
-                # Trả về metadata của kết quả đầu tiên
-                return result['metadatas'][0]
-            return None
-        except Exception as e:
-            logger.error(f"Error retrieving item {product_id}: {e}")
-            return None
+    def add_product(self, product_id: str, embedding: list):
+        """Thêm vector sản phẩm vào kho"""
+        self.collection.add(
+            ids=[product_id],
+            embeddings=[embedding]
+        )
 
 # Singleton instance
 vector_store = VectorStore()

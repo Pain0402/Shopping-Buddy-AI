@@ -2,6 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 from fastapi import UploadFile, HTTPException
 import uuid
+import io
 from app.core.config import settings
 
 class S3Client:
@@ -61,3 +62,13 @@ class S3Client:
             return response
         except ClientError:
             return ""
+    def download_file_as_bytes(self, file_key: str) -> bytes:
+        """
+        Tải file từ S3 và trả về dạng bytes (để nạp vào AI Model)
+        """
+        try:
+            response = self.s3_client.get_object(Bucket=self.bucket_name, Key=file_key)
+            return response['Body'].read()
+        except ClientError as e:
+            print(f"Error downloading from S3: {e}")
+            raise e
