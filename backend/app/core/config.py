@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     REDIS_PORT: str = "6379"
     REDIS_PASSWORD: str
 
+    GEMINI_API_KEY: str
+
     @property
     def REDIS_URL(self) -> str:
         return f"redis://:{self.REDIS_PASSWORD}@redis:{self.REDIS_PORT}/0"
