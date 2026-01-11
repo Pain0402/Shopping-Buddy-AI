@@ -50,7 +50,8 @@ class _ResultScreenState extends State<ResultScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StylistAdviceSheet(productId: productId, productName: productName),
+      builder: (context) =>
+          StylistAdviceSheet(productId: productId, productName: productName),
     );
   }
 
@@ -66,20 +67,29 @@ class _ResultScreenState extends State<ResultScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(color: AppTheme.secondaryColor),
+                    const CircularProgressIndicator(
+                      color: AppTheme.secondaryColor,
+                    ),
                     const SizedBox(height: 16),
-                    const Text("Analyzing your style...").animate(onPlay: (c) => c.repeat()).shimmer(duration: 1500.ms),
+                    const Text("Analyzing your style...")
+                        .animate(onPlay: (c) => c.repeat())
+                        .shimmer(duration: 1500.ms),
                   ],
                 ),
               ),
             )
           else if (_errorMessage != null)
             SliverFillRemaining(
-              child: Center(child: Text(_errorMessage!, style: const TextStyle(color: AppTheme.errorColor))),
+              child: Center(
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: AppTheme.errorColor),
+                ),
+              ),
             )
           else if (_products.isEmpty)
             const SliverFillRemaining(
-              child: Center(child: Text("No matching products found found.")),
+              child: Center(child: Text("No matching products found.")),
             )
           else
             SliverPadding(
@@ -91,13 +101,10 @@ class _ResultScreenState extends State<ResultScreen> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final product = _products[index];
-                    return _buildProductCard(product, index);
-                  },
-                  childCount: _products.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final product = _products[index];
+                  return _buildProductCard(product, index);
+                }, childCount: _products.length),
               ),
             ),
         ],
@@ -149,99 +156,122 @@ class _ResultScreenState extends State<ResultScreen> {
     final imageUrl = product['image_url'] ?? "";
 
     return GestureDetector(
-      onTap: () => _showStylistAdvice(product['id'], metadata['name'] ?? "Product"),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceColor,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (imageUrl.isNotEmpty)
-                    CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(color: Colors.grey[900]),
-                      errorWidget: (_, __, ___) => Container(color: Colors.grey[900], child: const Icon(Icons.broken_image)),
-                    )
-                  else
-                    Container(color: Colors.grey[900]),
-                  
-                  // Gradient overlay on image
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 50,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
-                        ),
+      onTap: () =>
+          _showStylistAdvice(product['id'], metadata['name'] ?? "Product"),
+      child:
+          Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceColor,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (imageUrl.isNotEmpty)
+                            CachedNetworkImage(
+                              imageUrl: imageUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (_, __) =>
+                                  Container(color: Colors.grey[900]),
+                              errorWidget: (_, __, ___) => Container(
+                                color: Colors.grey[900],
+                                child: const Icon(Icons.broken_image),
+                              ),
+                            )
+                          else
+                            Container(color: Colors.grey[900]),
+
+                          // Gradient overlay on image
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: 50,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.7),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    metadata['name'] ?? "Product",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            metadata['name'] ?? "Product",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "\$${metadata['price'] ?? 0}",
+                                style: const TextStyle(
+                                  color: AppTheme.secondaryColor,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryColor.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppTheme.primaryColor.withOpacity(
+                                      0.5,
+                                    ),
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.auto_awesome,
+                                  size: 14,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "\$${metadata['price'] ?? 0}",
-                        style: const TextStyle(
-                          color: AppTheme.secondaryColor,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppTheme.primaryColor.withOpacity(0.5)),
-                        ),
-                         child: const Icon(Icons.auto_awesome, size: 14, color: AppTheme.primaryColor),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ).animate().fadeIn(duration: 400.ms, delay: (100 * index).ms).slideY(begin: 0.2, end: 0),
+                  ],
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 400.ms, delay: (100 * index).ms)
+              .slideY(begin: 0.2, end: 0),
     );
   }
 }
@@ -249,7 +279,11 @@ class _ResultScreenState extends State<ResultScreen> {
 class StylistAdviceSheet extends StatefulWidget {
   final String productId;
   final String productName;
-  const StylistAdviceSheet({super.key, required this.productId, required this.productName});
+  const StylistAdviceSheet({
+    super.key,
+    required this.productId,
+    required this.productName,
+  });
 
   @override
   State<StylistAdviceSheet> createState() => _StylistAdviceSheetState();
@@ -302,20 +336,38 @@ class _StylistAdviceSheetState extends State<StylistAdviceSheet> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppTheme.primaryColor),
-                ),
-                child: const Icon(Icons.face_retouching_natural, color: AppTheme.primaryColor),
-              ).animate(onPlay: (c) => c.repeat(reverse: true)).pulse(duration: 2.seconds),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppTheme.primaryColor),
+                    ),
+                    child: const Icon(
+                      Icons.face_retouching_natural,
+                      color: AppTheme.primaryColor,
+                    ),
+                  )
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .scale(
+                    duration: 2.seconds,
+                    begin: const Offset(1.0, 1.0),
+                    end: const Offset(1.1, 1.1),
+                  ),
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("AI Fashion Stylist", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                  Text("Advice for: ${widget.productName}", style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                  const Text(
+                    "AI Fashion Stylist",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  Text(
+                    "Advice for: ${widget.productName}",
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -327,9 +379,14 @@ class _StylistAdviceSheetState extends State<StylistAdviceSheet> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const CircularProgressIndicator(color: AppTheme.primaryColor),
+                        const CircularProgressIndicator(
+                          color: AppTheme.primaryColor,
+                        ),
                         const SizedBox(height: 16),
-                        const Text("Thinking about outfits...").animate(onPlay: (c) => c.repeat()).fadeIn(duration: 1.seconds).fadeOut(delay: 1.seconds),
+                        const Text("Thinking about outfits...")
+                            .animate(onPlay: (c) => c.repeat())
+                            .fadeIn(duration: 1.seconds)
+                            .fadeOut(delay: 1.seconds),
                       ],
                     ),
                   )
@@ -343,8 +400,12 @@ class _StylistAdviceSheetState extends State<StylistAdviceSheet> {
                       ),
                       child: Text(
                         _advice,
-                        style: const TextStyle(fontSize: 16, height: 1.6, color: Colors.white),
-                      ).animate().typewriter(speed: 30.ms),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 1.6,
+                          color: Colors.white,
+                        ),
+                      ).animate().fadeIn(duration: 600.ms),
                     ),
                   ),
           ),
